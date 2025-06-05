@@ -8,20 +8,24 @@ export function activate(context: vscode.ExtensionContext) {
       const document = editor.document;
       const relativePath = path.relative(vscode.workspace.rootPath || "", document.uri.fsPath);
 
+      // Get file extension for language guessing
+      const ext = path.extname(document.fileName).replace(".", "").toLowerCase();
+
       // Check for selected text
       const selectedText = editor.selection.isEmpty
         ? null
         : editor.document.getText(editor.selection);
-      const textToCopy = selectedText || document.getText(); // Use selected text or entire code if nothing is selected
+      const textToCopy = selectedText || document.getText();
 
-      // Combine the path and text
-      const combinedText = `Path: ${relativePath}\n\n${
-        selectedText ? "Selected Code:" : "Code:"
-      }\n${textToCopy}`;
+      // Format combined text for LLM-friendly output with separators
+      const combinedText =
+        `\n=============================\n**File:** ${relativePath}\n=============================\n\n` +
+        `\`\`\`${textToCopy}\n\`\`\`\n` +
+        `=============================\nEnd of ${relativePath}\n=============================\n`;
 
       // Copy to clipboard
       await vscode.env.clipboard.writeText(combinedText);
-      vscode.window.showInformationMessage("File path and selected code copied to clipboard!");
+      vscode.window.showInformationMessage("LLM-ready code snippet copied to clipboard!");
     } else {
       vscode.window.showWarningMessage("No active editor found.");
     }
