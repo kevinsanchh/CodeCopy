@@ -31,5 +31,35 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  context.subscriptions.push(disposable);
+  let copyAllTabsDisposable = vscode.commands.registerCommand("extension.copyAllTabs", async () => {
+    let combinedText = "";
+
+    for (const tabGroup of vscode.window.tabGroups.all) {
+      for (const tab of tabGroup.tabs) {
+        if (tab.input instanceof vscode.TabInputText) {
+          const document = await vscode.workspace.openTextDocument(tab.input.uri);
+          const relativePath = path.relative(vscode.workspace.rootPath || "", document.uri.fsPath);
+          const textToCopy = document.getText();
+          const ext = path.extname(document.fileName).replace(".", "").toLowerCase();
+
+          // Format combined text for LLM-friendly output with separators
+          const fileBlock =
+            `\n=============================\n**File:** ${relativePath}\n=============================\n\n` +
+            `\`\`\`${ext}\n${textToCopy}\n\`\`\`\n` +
+            `=============================\nEnd of ${relativePath}\n=============================\n`;
+
+          combinedText += fileBlock;
+        }
+      }
+    }
+
+    if (combinedText) {
+      // Copy to clipboard
+      await vscode.env.clipboard.writeText(combinedText);
+      vscode.window.showInformationMessage("LLM-ready code from all tabs copied to clipboard!");
+    } else {
+      vscode.window.showWarningMessage("No open text tabs found.");
+    }
+  });
+  context.subscriptions.push(disposable, copyAllTabsDisposable);
 }

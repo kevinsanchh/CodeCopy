@@ -1,21 +1,40 @@
 {
   "name": "CodeCopy",
-  "displayName": "CodeCopy",
+  "displayName": "CodeCopy - Copy As A Snippet",
   "description": "",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.95.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:extension.copyPathAndCode",
+    "onCommand:extension.copyAllTabs"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "extension.copyPathAndCode",
         "title": "Copy Path and Code"
+      },
+      {
+        "command": "extension.copyAllTabs",
+        "title": "Copy Code from All Tabs"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.copyPathAndCode",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c"
+      },
+      {
+        "command": "extension.copyAllTabs",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f"
       }
     ]
   },
